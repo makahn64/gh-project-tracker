@@ -1,0 +1,14 @@
+{
+  "owner": "your-github-user",
+  "repo": "your-repo",
+  "branch": "main",
+  "projectOwner": "your-github-user",
+  "projectNumber": 1,
+  "defaultMilestone": "Beta",
+  "priorityField": "Priority",
+  "port": 5174,
+  "excludeGlobs": [
+    "**/pnpm-lock.yaml", "**/package-lock.json", "**/yarn.lock", "**/*.lock",
+    "**/dist/**", "**/build/**", "**/*.min.*", "**/*.snap", "**/generated/**"
+  ]
+}
