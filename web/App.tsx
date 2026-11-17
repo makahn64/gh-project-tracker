@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ALL, type TrackerData } from '../shared/types';
+import { MAX_SPAN, MIN_SPAN, zoomIn, zoomOut } from '../shared/days';
 import { burndown, byLabel, closedPerDay, inScope, progress } from '../shared/metrics';
 import { api } from './api';
 import { StatTiles } from './components/StatTiles';
@@ -13,6 +14,7 @@ export function App() {
   const [milestone, setMilestone] = useState<string>(ALL);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [span, setSpan] = useState(MIN_SPAN);
 
   const latest = useRef(0);
 
@@ -41,15 +43,20 @@ export function App() {
     const scoped = inScope(data.issues, milestone);
     const closed = closedPerDay(data.issues, data.days);
     return {
-      scoped, closed,
-      closedTotal: closed.reduce((s, d) => s + d.count, 0),
+      scoped,
+      // Tiles always cover the last two weeks; the charts follow the zoom.
+      tileLines: data.lines.slice(-MIN_SPAN),
+      closedTotal: closed.slice(-MIN_SPAN).reduce((s, d) => s + d.count, 0),
+      lines: data.lines.slice(-span),
+      closed: closed.slice(-span),
       scope: progress(scoped),
-      burndown: burndown(scoped, data.days),
+      burndown: burndown(scoped, data.days).slice(-span),
       labels: byLabel(scoped),
     };
-  }, [data, milestone]);
+  }, [data, milestone, span]);
 
   const scopeLabel = milestone === ALL ? 'All tickets' : milestone;
+  const rangeLabel = `last ${span / 7} weeks`;
 
   return (
     <main className="page">
@@ -73,10 +80,15 @@ export function App() {
 
       {data && view && (
         <>
-          <StatTiles lines={data.lines} closed={view.closedTotal} scope={view.scope} scopeLabel={scopeLabel} />
+          <StatTiles lines={view.tileLines} closed={view.closedTotal} scope={view.scope} scopeLabel={scopeLabel} />
+          <div className="zoom" role="group" aria-label="Chart range">
+            <span className="muted">Charts: {rangeLabel}</span>
+            <button aria-label="Zoom in one week" onClick={() => setSpan(zoomIn)} disabled={span === MIN_SPAN}>−</button>
+            <button aria-label="Zoom out one week" onClick={() => setSpan(zoomOut)} disabled={span === MAX_SPAN}>+</button>
+          </div>
           <div className="charts">
-            <ActivityChart lines={data.lines} closed={view.closed} />
-            <Burndown points={view.burndown} scopeLabel={scopeLabel} />
+            <ActivityChart lines={view.lines} closed={view.closed} rangeLabel={rangeLabel} />
+            <Burndown points={view.burndown} scopeLabel={scopeLabel} rangeLabel={rangeLabel} />
           </div>
           <LabelBars rows={view.labels} scopeLabel={scopeLabel} />
           <TicketTable issues={view.scoped} labels={data.labels} milestones={data.milestones} />

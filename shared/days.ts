@@ -18,3 +18,10 @@ export function lastNDays(now: Date, n: number): string[] {
   }
   return days;
 }
+
+/** Chart range in days: starts at 2 weeks, zooms out a week at a time to 13 weeks (~3 months). */
+export const MIN_SPAN = 14;
+export const MAX_SPAN = 91;
+const STEP = 7;
+export const zoomOut = (span: number) => Math.min(MAX_SPAN, span + STEP);
+export const zoomIn = (span: number) => Math.max(MIN_SPAN, span - STEP);

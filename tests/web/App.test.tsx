@@ -71,3 +71,31 @@ test('after refresh, a milestone that closed falls back to All tickets', async (
   expect(await screen.findByRole('region', { name: 'All tickets progress' })).toBeInTheDocument();
   expect(screen.getByLabelText('Milestone')).toHaveDisplayValue('All tickets');
 });
+
+function manyDays(n: number) {
+  const days = Array.from({ length: n }, (_, i) => `2026-${String(8 + Math.floor(i / 28)).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`);
+  return trackerData({ days, lines: days.map((date) => ({ date, added: 1, removed: 0 })) });
+}
+
+test('tiles stay on the last 14 days even when 91 are loaded', async () => {
+  getData.mockResolvedValue(manyDays(91));
+  render(<App />);
+  expect(await screen.findByRole('region', { name: 'Lines changed · 14d' })).toHaveTextContent('+14 / −0');
+});
+
+test('zoom out widens both charts a week at a time up to 13 weeks', async () => {
+  getData.mockResolvedValue(manyDays(91));
+  render(<App />);
+  await screen.findByRole('heading', { name: 'Daily activity · last 2 weeks' });
+  const out = screen.getByRole('button', { name: 'Zoom out one week' });
+  const zin = screen.getByRole('button', { name: 'Zoom in one week' });
+  expect(zin).toBeDisabled();
+  await userEvent.click(out);
+  expect(screen.getByRole('heading', { name: 'Daily activity · last 3 weeks' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Burndown · Beta · last 3 weeks' })).toBeInTheDocument();
+  for (let i = 0; i < 12; i++) await userEvent.click(out);
+  expect(screen.getByRole('heading', { name: 'Daily activity · last 13 weeks' })).toBeInTheDocument();
+  expect(out).toBeDisabled();
+  await userEvent.click(zin);
+  expect(screen.getByRole('heading', { name: 'Daily activity · last 12 weeks' })).toBeInTheDocument();
+});

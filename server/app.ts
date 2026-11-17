@@ -4,7 +4,7 @@ import type { Meta } from './github/meta';
 import type { DayLines, Issue, Priority, TrackerData } from '../shared/types';
 import { PRIORITIES } from '../shared/types';
 import { editLabels, setMilestone, setPriority } from './github/edits';
-import { lastNDays } from '../shared/days';
+import { MAX_SPAN, lastNDays } from '../shared/days';
 
 export interface AppDeps {
   cfg: TrackerConfig;
@@ -26,7 +26,7 @@ export function createApp(deps: AppDeps) {
   app.onError((err, c) => c.json({ error: err.message }, 502));
 
   app.get('/api/data', async (c) => {
-    const days = lastNDays(now(), 14);
+    const days = lastNDays(now(), MAX_SPAN);
     const [issues, fresh, lines] = await Promise.all([
       deps.fetchIssues(cfg, token),
       deps.fetchMeta(cfg, token),

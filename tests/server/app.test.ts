@@ -17,14 +17,14 @@ function deps(over: Partial<AppDeps> = {}): AppDeps {
   };
 }
 
-test('GET /api/data returns issues, 14 days, lines and meta', async () => {
+test('GET /api/data returns issues, 91 days (13 weeks), lines and meta', async () => {
   const res = await createApp(deps()).request('/api/data');
   expect(res.status).toBe(200);
   const body = await res.json();
   expect(body.issues).toHaveLength(1);
-  expect(body.days).toHaveLength(14);
-  expect(body.days[13]).toBe('2026-10-23');
-  expect(body.lines).toHaveLength(14);
+  expect(body.days).toHaveLength(91);
+  expect(body.days[90]).toBe('2026-10-23');
+  expect(body.lines).toHaveLength(91);
   expect(body).toMatchObject({
     labels: ['AI', 'WEB'], milestones: ['Beta'], defaultMilestone: 'Beta',
     repoName: 'acme/widgets', branch: 'development',

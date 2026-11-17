@@ -1,4 +1,4 @@
-import { lastNDays, localDay } from '../../shared/days';
+import { MAX_SPAN, MIN_SPAN, lastNDays, localDay, zoomIn, zoomOut } from '../../shared/days';
 
 test('lastNDays returns 14 local dates oldest first ending today', () => {
   const d = lastNDays(new Date(2026, 9, 23, 9, 0), 14);
@@ -15,4 +15,13 @@ test('lastNDays crosses a month boundary', () => {
 test('localDay uses local time zone', () => {
   const iso = new Date(2026, 9, 22, 23, 30).toISOString();
   expect(localDay(iso)).toBe('2026-10-22');
+});
+
+test('zoom steps a week at a time between 2 and 13 weeks', () => {
+  expect(zoomOut(14)).toBe(21);
+  expect(zoomOut(MAX_SPAN)).toBe(MAX_SPAN);
+  expect(zoomIn(21)).toBe(14);
+  expect(zoomIn(MIN_SPAN)).toBe(MIN_SPAN);
+  expect(MIN_SPAN).toBe(14);
+  expect(MAX_SPAN).toBe(91);
 });

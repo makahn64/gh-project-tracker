@@ -14,7 +14,7 @@ const lines = [{ date: '2026-10-22', added: 10, removed: 2 }, { date: '2026-10-2
 const closed = [{ date: '2026-10-22', count: 1 }, { date: '2026-10-23', count: 3 }];
 
 test('activity chart starts on Lines and toggles to Tickets', async () => {
-  render(<ActivityChart lines={lines} closed={closed} />);
+  render(<ActivityChart lines={lines} closed={closed} rangeLabel="last 2 weeks" />);
   const linesBtn = screen.getByRole('button', { name: 'Lines' });
   const ticketsBtn = screen.getByRole('button', { name: 'Tickets' });
   expect(linesBtn).toHaveAttribute('aria-pressed', 'true');
@@ -24,8 +24,8 @@ test('activity chart starts on Lines and toggles to Tickets', async () => {
 });
 
 test('burndown title names the milestone', () => {
-  render(<Burndown points={[{ date: '2026-10-23', pct: 16 }]} scopeLabel="Beta" />);
-  expect(screen.getByRole('heading', { name: 'Burndown · Beta' })).toBeInTheDocument();
+  render(<Burndown points={[{ date: '2026-10-23', pct: 16 }]} scopeLabel="Beta" rangeLabel="last 2 weeks" />);
+  expect(screen.getByRole('heading', { name: 'Burndown · Beta · last 2 weeks' })).toBeInTheDocument();
 });
 
 test('label bars show pct and counts', () => {

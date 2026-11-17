@@ -6,7 +6,11 @@ import { axis, grid, shortDate, tooltip } from './chartTheme';
 type Mode = 'lines' | 'tickets';
 const fmt = new Intl.NumberFormat('en-US');
 
-export function ActivityChart({ lines, closed }: { lines: DayLines[]; closed: { date: string; count: number }[] }) {
+export function ActivityChart({ lines, closed, rangeLabel }: {
+  lines: DayLines[];
+  closed: { date: string; count: number }[];
+  rangeLabel: string;
+}) {
   const [mode, setMode] = useState<Mode>('lines');
   const lineData = lines.map((d) => ({ date: shortDate(d.date), added: d.added, removed: -d.removed }));
   const ticketData = closed.map((d) => ({ date: shortDate(d.date), closed: d.count }));
@@ -14,7 +18,7 @@ export function ActivityChart({ lines, closed }: { lines: DayLines[]; closed: { 
   return (
     <section className="panel" aria-labelledby="activity-title">
       <div className="chart-head">
-        <h2 className="label" id="activity-title">Daily activity · last 14 days</h2>
+        <h2 className="label" id="activity-title">Daily activity · {rangeLabel}</h2>
         <div className="toggle" role="group" aria-label="Activity measure">
           <button aria-pressed={mode === 'lines'} onClick={() => setMode('lines')}>Lines</button>
           <button aria-pressed={mode === 'tickets'} onClick={() => setMode('tickets')}>Tickets</button>
